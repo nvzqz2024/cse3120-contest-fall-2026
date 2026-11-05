@@ -10,6 +10,11 @@ INCLUDE Irvine32.inc
 	rows = 8
 	cols = 8
 
+    health DWORD 100               ; Player starts with 100 health
+    gold DWORD 0                   ; Player starts with no gold
+    healthMsg BYTE "Health: ",0     ; Null-terminated health label
+    goldMsg BYTE "Gold: ",0         ; Null-terminated gold label
+
 	base BYTE '#', '#', '#', '#', '#', '#', '#', '#'
 	     BYTE '#', '.', '.', '.', '.', '.', 'E', '#'
 	     BYTE '#', '.', '.', '.', '.', '.', '.', '#'
@@ -62,7 +67,18 @@ nextRow:
 	jmp LO
 
 done:
-	exit
+    mov edx, OFFSET healthMsg      ; Load address of health label
+    call WriteString              ; Display "Health: "
+    mov eax, health                ; Load current health
+    call WriteDec                 ; Display health as an unsigned decimal
+    call Crlf                     ; Move to the next line
+
+    mov edx, OFFSET goldMsg        ; Load address of gold label
+    call WriteString              ; Display "Gold: "
+    mov eax, gold                  ; Load current gold
+    call WriteDec                 ; Display gold as an unsigned decimal
+    call Crlf                     ; Move to the next line
+    exit                          ; End the program
 
 main ENDP
 END main
