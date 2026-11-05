@@ -36,8 +36,12 @@ INCLUDE Irvine32.inc
 
 .code
 main PROC
+    call DrawGrid                 ; Display dungeon and player stats
+    exit                          ; End program after drawing
+main ENDP
 
-	mov esi, 0			; Row count
+DrawGrid PROC
+    mov esi, 0                    ; Start at row zero
 
 LO:		; Loop Outer
 	cmp esi, rows		; compare current row count in esi to rows
@@ -78,7 +82,7 @@ done:
     mov eax, gold                  ; Load current gold
     call WriteDec                 ; Display gold as an unsigned decimal
     call Crlf                     ; Move to the next line
-    exit                          ; End the program
+    ret					; Return to the caller
 
-main ENDP
+DrawGrid ENDP
 END main
