@@ -15,6 +15,8 @@ INCLUDE Irvine32.inc
     healthMsg BYTE "Health: ",0     ; Null-terminated health label
     goldMsg BYTE "Gold: ",0         ; Null-terminated gold label
 
+    controlsMsg BYTE "Press Q to quit; any other key redraws.",0 ; Controls text
+
 	base BYTE '#', '#', '#', '#', '#', '#', '#', '#'
 	     BYTE '#', '.', '.', '.', '.', '.', 'E', '#'
 	     BYTE '#', '.', '.', '.', '.', '.', '.', '#'
@@ -36,8 +38,20 @@ INCLUDE Irvine32.inc
 
 .code
 main PROC
-    call DrawGrid                 ; Display dungeon and player stats
-    exit                          ; End program after drawing
+gameLoop:
+    call Clrscr                   ; Clear the previous screen
+    call DrawGrid                 ; Display dungeon and stats
+    mov edx, OFFSET controlsMsg    ; Load instructions
+    call WriteString              ; Display instructions
+    call ReadChar                 ; Wait for a key; character goes in AL
+    cmp al, 'q'                   ; Check lowercase quit command
+    je quitGame
+    cmp al, 'Q'                   ; Check uppercase quit command
+    je quitGame
+    jmp gameLoop                  ; Redraw after any other key
+
+quitGame:
+    exit                          ; End the game
 main ENDP
 
 DrawGrid PROC
