@@ -10,6 +10,9 @@ INCLUDE Irvine32.inc
 	rows = 8
 	cols = 8
 
+	playerX DWORD 1
+	playerY DWORD 6
+
     health DWORD 100               ; Player starts with 100 health
     gold DWORD 0                   ; Player starts with no gold
     healthMsg BYTE "Health: ",0     ; Null-terminated health label
@@ -23,7 +26,7 @@ INCLUDE Irvine32.inc
 	     BYTE '#', '.', '.', '.', '.', '.', '.', '#'
 	     BYTE '#', '.', '.', '.', '.', '.', '.', '#'
 	     BYTE '#', '.', '.', '.', '.', '.', '.', '#'
-	     BYTE '#', 'P', '.', '.', '.', '.', '.', '#'
+	     BYTE '#', '.', '.', '.', '.', '.', '.', '#'
 	     BYTE '#', '#', '#', '#', '#', '#', '#', '#'
 
 	levelSafe BYTE '#', '#', '#', '#', '#', '#', '#', '#'
@@ -32,7 +35,7 @@ INCLUDE Irvine32.inc
 	          BYTE '#', '.', '#', '#', '.', '#', '#', '#'
 	          BYTE '#', '.', '#', '#', '.', '#', '#', '#'
 	          BYTE '#', '.', '#', '#', '.', '#', '#', '#'
-	          BYTE '#', 'P', '#', '#', 'G', 'G', '#', '#'
+	          BYTE '#', '.', '#', '#', 'G', 'G', '#', '#'
 	          BYTE '#', '#', '#', '#', '#', '#', '#', '#'
 
 
@@ -63,8 +66,23 @@ LO:		; Loop Outer
 	mov edi, 0			; Column count
 
 LI:		; Loop Inner
-	cmp edi, cols		; compare current cols cound in edi to cols
+	cmp edi, cols		; compare current cols count in edi to cols
 	jge nextRow
+
+	; placing character
+	cmp edi, playerX	; does x match the playerX?
+	jne printContinue	; if no, continue normally
+
+	cmp esi, playerY	; does y match the playerY?
+	jne printContinue	; if no, continue normally
+
+	; print the player, since it didn't jump
+	mov al, 'P'
+	call WriteChar
+	inc edi
+	jmp LI
+
+	printContinue:
 
 	; index = (current row) * cols + (current column)
 
