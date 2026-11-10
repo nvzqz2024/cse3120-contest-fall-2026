@@ -2,7 +2,7 @@
 @echo off
 
 REM Assemble
-ml /c /coff Static_Grid.asm
+ml /c /coff /I "C:\Irvine" Static_Grid.asm
 
 IF ERRORLEVEL 1 (
     echo.
