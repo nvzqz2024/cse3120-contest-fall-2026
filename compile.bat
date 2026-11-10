@@ -12,7 +12,7 @@ IF ERRORLEVEL 1 (
 )
 
 REM Link
-link /SUBSYSTEM:CONSOLE program.obj
+link /SUBSYSTEM:CONSOLE Static_Grid.obj
 
 IF ERRORLEVEL 1 (
     echo.
