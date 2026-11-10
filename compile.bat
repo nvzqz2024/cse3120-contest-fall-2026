@@ -1,5 +1,7 @@
-
 @echo off
+
+REM Set up VS
+call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars32.bat"
 
 REM Assemble
 ml /c /coff /I "C:\Irvine" Static_Grid.asm
@@ -12,7 +14,7 @@ IF ERRORLEVEL 1 (
 )
 
 REM Link
-link /SUBSYSTEM:CONSOLE Static_Grid.obj
+link /SUBSYSTEM:CONSOLE /LIBPATH:"C:\Irvine" Static_Grid.obj Irvine32.lib kernel32.lib user32.lib
 
 IF ERRORLEVEL 1 (
     echo.
@@ -23,6 +25,6 @@ IF ERRORLEVEL 1 (
 
 echo.
 echo Compilation successful!
-echo Executable: terminaltomb.exe
+echo Executable: Static_Grid.exe
 
 pause
