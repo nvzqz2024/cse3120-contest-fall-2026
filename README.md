@@ -1,4 +1,9 @@
 # cse3120-contest-fall-2026
+### Instructions:
+Navigate to the downloaded directory
+run the compilation script `compile.bat`
+If successful, run `terminaltomb.exe`
+
 -----
 # Terminal Tomb
 -----
