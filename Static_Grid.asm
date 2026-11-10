@@ -19,6 +19,7 @@ INCLUDE Irvine32.inc
     goldMsg BYTE "Gold: ",0         ; Null-terminated gold label
 
     controlsMsg BYTE "WASD to move. Q to quit.",0
+    winMsg BYTE "You escaped the tomb! Final gold: ",0
 
 	base BYTE '#', '#', '#', '#', '#', '#', '#', '#'
 	     BYTE '#', '.', '.', '.', '.', '.', 'E', '#'
@@ -51,8 +52,27 @@ gameLoop:
     je quitGame
     cmp al, 'Q'                   ; Check uppercase quit command
     je quitGame
+     ; Handle the movement key and update the player's position if the move is valid.
     call MovePlayer
+
+    ; Convert the player's row and column into a map index: row * cols + column.
+    mov eax, playerY
+    imul eax, cols
+    add eax, playerX
+    ; Check whether the tile under the player is the exit.
+    cmp levelSafe[eax], 'E'
+    je winGame
     jmp gameLoop
+
+winGame:
+    call Clrscr
+    call DrawGrid
+    mov edx, OFFSET winMsg
+    call WriteString
+    mov eax, gold
+    call WriteDec
+    call Crlf
+    call WaitMsg
 
 quitGame:
     exit                          ; End the game
@@ -105,6 +125,11 @@ checkTile:
 
     mov playerX, ecx
     mov playerY, edx
+    cmp levelSafe[eax], 'G'
+    jne moveDone
+
+    inc gold
+    mov levelSafe[eax], '.'        ; Remove collected gold from the map
 
 moveDone:
     ret
