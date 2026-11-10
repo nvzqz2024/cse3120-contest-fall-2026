@@ -42,7 +42,7 @@ INCLUDE Irvine32.inc
 
     	levelUnsafe BYTE '#', '#', '#', '#', '#', '#', '#', '#'
 		      BYTE '#', '.', '.', 'T', '.', '.', 'E', '#'
-	          BYTE '#', '.', '#', '#', '.', '#', '#', '#'
+	          BYTE '#', '.', '#', '#', 'Z', '#', '#', '#'
 	          BYTE '#', '.', '#', '#', '.', '#', '#', '#'
 	          BYTE '#', '.', '#', '#', '.', '#', '#', '#'
 	          BYTE '#', '.', '#', '#', '.', '#', '#', '#'
@@ -136,6 +136,8 @@ checkTile:
 
     mov playerX, ecx
     mov playerY, edx
+    cmp levelUnsafe[eax], 'Z'
+    je damageZombie
     cmp levelUnsafe[eax], 'T'
     je damageTrap
     cmp levelUnsafe[eax], 'G'
@@ -150,6 +152,14 @@ damageTrap:
     jb setZero          ; If health is below 10, you don't want to sub 10 because it will wrap around
 
     sub health, 10
+    jmp moveDone
+
+damageZombie:
+    cmp health, 25
+    jb setZero
+
+    sub health, 25                   ; Zombies deal more damage than traps because they can die
+    mov levelUnsafe[eax], '.'        ; Remove faught zombie from the map
     jmp moveDone
 
 setZero:
