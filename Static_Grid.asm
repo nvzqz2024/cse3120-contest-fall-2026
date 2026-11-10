@@ -20,6 +20,7 @@ INCLUDE Irvine32.inc
 
     controlsMsg BYTE "WASD to move. Q to quit.",0
     winMsg BYTE "You escaped the tomb! Final gold: ",0
+    deathMsg BYTE "You lost all health before you could escape... Dropped gold: ",0
 
 	base BYTE '#', '#', '#', '#', '#', '#', '#', '#'
 	     BYTE '#', '.', '.', '.', '.', '.', 'E', '#'
@@ -39,11 +40,21 @@ INCLUDE Irvine32.inc
 	          BYTE '#', '.', '#', '#', 'G', 'G', '#', '#'
 	          BYTE '#', '#', '#', '#', '#', '#', '#', '#'
 
+    	levelUnsafe BYTE '#', '#', '#', '#', '#', '#', '#', '#'
+		      BYTE '#', '.', '.', 'T', '.', '.', 'E', '#'
+	          BYTE '#', '.', '#', '#', '.', '#', '#', '#'
+	          BYTE '#', '.', '#', '#', '.', '#', '#', '#'
+	          BYTE '#', '.', '#', '#', '.', '#', '#', '#'
+	          BYTE '#', '.', '#', '#', '.', '#', '#', '#'
+	          BYTE '#', '.', '.', '.', 'G', 'G', '#', '#'
+	          BYTE '#', '#', '#', '#', '#', '#', '#', '#'
+
 
 .code
 main PROC
 gameLoop:
     call Clrscr                   ; Clear the previous screen
+    call CheckDeath
     call DrawGrid                 ; Display dungeon and stats
     mov edx, OFFSET controlsMsg    ; Load instructions
     call WriteString              ; Display instructions
@@ -120,20 +131,49 @@ checkTile:
     imul eax, cols
     add eax, ecx                   ; EAX = target row * cols + target column
 
-    cmp levelSafe[eax], '#'
+    cmp levelUnsafe[eax], '#'
     je moveDone
 
     mov playerX, ecx
     mov playerY, edx
-    cmp levelSafe[eax], 'G'
+    cmp levelUnsafe[eax], 'T'
+    je damageTrap
+    cmp levelUnsafe[eax], 'G'
     jne moveDone
 
     inc gold
-    mov levelSafe[eax], '.'        ; Remove collected gold from the map
+    mov levelUnsafe[eax], '.'        ; Remove collected gold from the map
+    jmp moveDone
+
+damageTrap:
+    cmp health, 10
+    jb setZero          ; If health is below 10, you don't want to sub 10 because it will wrap around
+
+    sub health, 10
+    jmp moveDone
+
+setZero:
+    mov health, 0
 
 moveDone:
     ret
 MovePlayer ENDP
+
+CheckDeath PROC
+    cmp health, 0
+    jne okay            ; if you don't jump, you're health is 0 and the game should end
+
+    mov edx, OFFSET deathMsg
+    call WriteString
+    mov eax, gold
+    call WriteDec
+    call Crlf
+    call WaitMsg
+    exit
+
+okay:
+    ret
+CheckDeath ENDP
 
 DrawGrid PROC
     mov esi, 0                    ; Start at row zero
@@ -169,7 +209,7 @@ LI:		; Loop Inner
 	add eax, edi		; result + column
 
 	; Put current character into al and print
-	mov al, levelSafe[eax]
+	mov al, levelUnsafe[eax]
 	call WriteChar
 
 	inc edi
