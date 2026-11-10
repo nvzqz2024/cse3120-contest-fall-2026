@@ -18,7 +18,7 @@ INCLUDE Irvine32.inc
     healthMsg BYTE "Health: ",0     ; Null-terminated health label
     goldMsg BYTE "Gold: ",0         ; Null-terminated gold label
 
-    controlsMsg BYTE "Press Q to quit; any other key redraws.",0 ; Controls text
+    controlsMsg BYTE "WASD to move. Q to quit.",0
 
 	base BYTE '#', '#', '#', '#', '#', '#', '#', '#'
 	     BYTE '#', '.', '.', '.', '.', '.', 'E', '#'
@@ -51,11 +51,64 @@ gameLoop:
     je quitGame
     cmp al, 'Q'                   ; Check uppercase quit command
     je quitGame
-    jmp gameLoop                  ; Redraw after any other key
+    call MovePlayer
+    jmp gameLoop
 
 quitGame:
     exit                          ; End the game
 main ENDP
+
+MovePlayer PROC
+    ; Start with the player's current coordinates.
+    mov ecx, playerX
+    mov edx, playerY
+
+    or al, 20h                     ; Convert uppercase letters to lowercase
+    cmp al, 'w'
+    je moveUp
+    cmp al, 'a'
+    je moveLeft
+    cmp al, 's'
+    je moveDown
+    cmp al, 'd'
+    je moveRight
+    ret                            ; Ignore other keys
+
+moveUp:
+    dec edx
+    jmp checkTile
+
+moveLeft:
+    dec ecx
+    jmp checkTile
+
+moveDown:
+    inc edx
+    jmp checkTile
+
+moveRight:
+    inc ecx
+
+checkTile:
+    ; Unsigned checks also reject coordinates that wrapped below zero.
+    cmp ecx, cols
+    jae moveDone
+    cmp edx, rows
+    jae moveDone
+
+    mov eax, edx
+    imul eax, cols
+    add eax, ecx                   ; EAX = target row * cols + target column
+
+    cmp levelSafe[eax], '#'
+    je moveDone
+
+    mov playerX, ecx
+    mov playerY, edx
+
+moveDone:
+    ret
+MovePlayer ENDP
 
 DrawGrid PROC
     mov esi, 0                    ; Start at row zero
